@@ -1,0 +1,32 @@
+{
+  "name": "echostride",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "ECHOSTRIDE - a first-person shooter built around a 3-second-old echo of yourself.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173",
+    "test:smoke": "node tools/smoke.mjs",
+    "capture": "node tools/capture.mjs",
+    "check": "node tools/checksyntax.mjs",
+    "test": "node tools/checksyntax.mjs && node tools/smoke.mjs"
+  },
+  "dependencies": {
+    "three": "0.169.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1",
+    "vite": "5.4.10"
+  },
+  "keywords": [
+    "fps",
+    "three.js",
+    "game",
+    "webgl",
+    "shooter",
+    "game-design"
+  ],
+  "license": "MIT"
+}
