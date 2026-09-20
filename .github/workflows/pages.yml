@@ -1,6 +1,8 @@
 # Deploys the playable build to GitHub Pages.
-# Requires the repository to be public (or GitHub Pages enabled on a paid plan)
-# and Settings → Pages → Source set to "GitHub Actions".
+#
+# Settings → Pages → Source must be "GitHub Actions". If the Pages site does
+# not exist yet, `enablement: true` below creates it rather than failing with
+# "Get Pages site failed ... Not Found", which is what the first run did.
 name: Deploy to Pages
 
 on:
@@ -18,10 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,13 +29,26 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Build with the repository name as base path
+      # Must run before the build: it reports the site's base path, and a
+      # Pages site served from /<repo>/ needs that baked into the asset URLs.
+      - id: pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Build with the Pages base path
         run: npm run build
         env:
-          ECHOSTRIDE_BASE: /${{ github.event.repository.name }}/
-      - uses: actions/configure-pages@v5
+          ECHOSTRIDE_BASE: ${{ steps.pages.outputs.base_path }}/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
