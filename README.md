@@ -7,6 +7,8 @@
 **A first-person shooter built around one idea:**
 *a copy of you from three seconds ago fights at your side — and you can trade places with it.*
 
+<sub><a href="README.de.md">Auf Deutsch lesen →</a></sub>
+
 </div>
 
 ![The Carillon](docs/shots/02-arena.png)
@@ -42,7 +44,7 @@ npm run dev          # → http://127.0.0.1:5173
 ```
 
 ```bash
-npm run build        # production build, ~590 kB (157 kB gzipped), zero assets
+npm run build        # production build, 620 kB on disk, ~161 kB gzipped, zero asset files
 npm run test:smoke   # headless: boots the real build and verifies the mechanic
 ```
 
@@ -217,9 +219,14 @@ Five decisions worth knowing about:
 - **Every tunable is in `Tuning.js`.** Balancing is a single-file activity, and
   the docs quote the constant names directly.
 - **The smoke test boots the real build in Chromium** and asserts the mechanic
-  actually happened. It has already caught two bugs reading never would have:
-  a pause overlay covering the main menu, and an arena wall a sprinting player
-  could walk straight through.
+  actually happened. It has already caught three bugs reading never would have:
+  a pause overlay covering the main menu, an arena wall a sprinting player
+  could walk straight through, and a weapon model parented to the world origin
+  instead of the camera.
+
+A full arena with a wave of enemies on screen costs **28 draw calls and about
+3,000 triangles** — everything is merged per material, and there is nothing to
+stream. The bottleneck on any real GPU is the browser, not this game.
 
 ---
 

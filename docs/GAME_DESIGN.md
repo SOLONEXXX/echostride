@@ -152,7 +152,7 @@ fighting in three seconds — is *continuous*. There is no point at which you ha
 | Decision | Why |
 |---|---|
 | **Three.js, browser, no engine** | The game loads from a link in under a second. For a game whose pitch requires *experiencing* the mechanic, a 4 GB download would be the design's biggest enemy. |
-| **Zero assets** | No textures, no models, no audio files. Everything is procedural geometry and synthesised sound. The build is one JS file. |
+| **Zero assets** | No textures, no models, no audio files. Everything is procedural geometry and synthesised sound. The whole build is 620 kB on disk, 161 kB gzipped. |
 | **Fixed 60 Hz simulation** | Required by the recorder: it indexes frames by tick count, and the echo's replay must be frame-rate independent. |
 | **Replay state, not input** | Replaying inputs needs eternal bit-exact determinism. Replaying positions cannot desync. See [ECHO_SHIFT.md §5](ECHO_SHIFT.md#5-why-replay-state-not-replay-input). |
 | **AABB brush collision** | Fast, exact, debuggable, and it gives *predictable* wall-run surfaces. Curved collision is where movement shooters go to die. |
@@ -167,10 +167,21 @@ it, both selves dealt damage, a Resonant Strike fired and shattered Monolith
 plating, all four weapons worked, and COLLAPSE consumed the echo.
 
 It is not a unit-test suite. It answers the only question that matters for a
-game — *is the thing playable right now* — and it has already caught two real
-bugs that no amount of reading would have: a pause overlay covering the main
-menu on load, and an arena boundary a sprinting player could walk straight
-through.
+game — *is the thing playable right now* — and it has already caught four real
+bugs that no amount of reading would have:
+
+1. A pause overlay covering the main menu on load.
+2. An arena boundary a sprinting player could walk straight through.
+3. A weapon view model parented to the world origin instead of the camera
+   (caught by looking at the screenshot the test takes).
+4. Impact particles spawned *on* the player, which at 60 cm from the eye
+   became screen-filling discs at exactly the moment you needed to see.
+
+### Performance
+A full arena with a wave of enemies on screen costs **28 draw calls and about
+3,000 triangles**. Everything is merged per material at build time and there is
+nothing to stream, so the frame budget is dominated by the browser rather than
+by this game.
 
 ---
 

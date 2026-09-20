@@ -109,6 +109,20 @@ export class Fx {
     this.shake = 0;
     /** Consumed by the HUD each frame. */
     this.hudEvents = [];
+    /** Updated every frame in step(); used to cull sparks born in your face. */
+    this.cameraPos = new THREE.Vector3();
+    /**
+     * Sparks spawned closer than this to the eye are discarded.
+     *
+     * When a Warden connects, the impact effect is spawned at the point it
+     * hit -- which is you. A size-attenuated additive particle 60 cm from the
+     * camera is not an effect, it is a 120-pixel orange disc pasted over the
+     * middle of the fight, and several of them at once blind you at exactly
+     * the moment you most need to see. The player already learns they were
+     * hit from the hurt flash, the directional indicator and the audio, so
+     * the particles are pure cost.
+     */
+    this.minSparkDistance = 1.15;
   }
 
   tracer(from, to, src = 'player', width = 1) {
@@ -129,6 +143,7 @@ export class Fx {
   }
 
   spark(pos, normal, count, src = 'player', speed = 5, colorOverride) {
+    if (pos.distanceToSquared(this.cameraPos) < this.minSparkDistance ** 2) return;
     const c = new THREE.Color(colorOverride ?? srcColor(src));
     for (let n = 0; n < count; n++) {
       const i = this.sparkHead;
@@ -224,6 +239,7 @@ export class Fx {
 
   step(dt, camera) {
     this.now += dt;
+    if (camera) this.cameraPos.copy(camera.position);
 
     for (let i = 0; i < this.maxTracers; i++) {
       if (this.tracerLife[i] <= 0) continue;

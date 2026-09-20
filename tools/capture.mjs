@@ -156,9 +156,21 @@ try {
     const grid = (await h.evaluateHandle((el) => el.nextElementSibling)).asElement();
     // The shared renderer only draws slots that are on screen, so the section
     // has to be scrolled into view and given a few frames before the shutter.
-    await grid.scrollIntoViewIfNeeded();
-    await sleep(1500);
-    await grid.screenshot({ path: `docs/shots/gallery-${names[i]}.png` });
+    await grid.evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    await sleep(1800);
+    // A clipped page screenshot rather than an element screenshot: the page
+    // animates every frame, so Playwright's "wait for the element to be
+    // stable" check never settles and times out on the tall cards.
+    const box = await grid.boundingBox();
+    if (!box) continue;
+    await gal.screenshot({
+      path: `docs/shots/gallery-${names[i]}.png`,
+      clip: {
+        x: Math.max(0, box.x), y: Math.max(0, box.y),
+        width: Math.min(box.width, 1500 - Math.max(0, box.x)),
+        height: Math.min(box.height, 1100 - Math.max(0, box.y)),
+      },
+    });
     shots.push(`gallery-${names[i]}.png`);
   }
   await gal.close();

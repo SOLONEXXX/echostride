@@ -45,7 +45,7 @@ noise. Adding a fifth signal colour would cost more than any effect it bought.
   needs detail to read, it is the wrong shape.
 - **No textures at all.** Every surface in the game is flat colour plus light.
   This began as an engineering constraint (zero asset pipeline, instant load,
-  the entire build under 1 MB gzipped, works offline) and turned out to be the
+  the whole build 161 kB gzipped, works offline) and turned out to be the
   right artistic answer: brutalist forms read better untextured, and the colour
   law stays uncontaminated.
 - **Asymmetry with a reason.** The Strider's left side carries the harness and

@@ -221,8 +221,26 @@ try {
   // Let a few hundred real rendered frames go by to catch render-path errors.
   await page.evaluate(() => { window.ECHOSTRIDE.game.paused = false; });
   await sleep(2500);
-  const fps = await page.evaluate(() => window.ECHOSTRIDE.game.fps);
-  console.log('render fps (swiftshader, software):', fps);
+  const perf = await page.evaluate(() => {
+    const g = window.ECHOSTRIDE.game;
+    const r = g.renderer;
+    // The game draws the world and then the view model in two passes, and
+    // renderer.info resets on every render() call -- so reading it after a
+    // frame reports the weapon, not the arena. Render the world once more on
+    // its own and read that.
+    r.render(g.scene, g.camera);
+    return {
+      fps: window.ECHOSTRIDE.game.fps,
+      drawCalls: r.info.render.calls,
+      triangles: r.info.render.triangles,
+      programs: r.info.programs?.length ?? 0,
+      geometries: r.info.memory.geometries,
+      textures: r.info.memory.textures,
+    };
+  });
+  // The frame rate here is software rasterisation (SwiftShader) and says
+  // nothing about real hardware. Draw calls and triangle count do.
+  console.log('render:', JSON.stringify(perf));
 
   await page.screenshot({ path: 'docs/shots/smoke-final-frame.png' });
 
